@@ -33,6 +33,73 @@ from random import shuffle
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D
 from keras.models import Model
 
+seed = 7
+numpy.random.seed(seed)
+
+
+mypath = './db/'
+nfolds=6
+size_img = 50
+input_shape= (1, size_img, size_img)
+num_classes = 38
+sum_score = 0
+#size_train = 700#
+size_train = 50000
+
+
+x_train = []
+y_train = []
+x_test = []
+y_test = []
+
+#onlyfiles = [f for f in listdir(mypath + '/train_reduced/')]
+onlyfiles = [f for f in listdir(mypath + '/train/')]
+
+X = []
+Y = []
+
+
+#shuffle(onlyfiles)
+out = pd.read_csv(mypath + 'training_solutions_rev1.csv')
+
+def get_y(num):
+    id_v = 0
+    for idx, e in enumerate(out['GalaxyID']):
+        if e == num:
+            id_v = idx
+    y = 0
+    y_id = 0
+    for idx, e in enumerate(out):
+        if idx>0:
+            if y < out[e][id_v]:
+                y = out[e][id_v]
+                y_id = idx
+    a = np.zeros(38)
+    a[y_id] = 1
+    return a
+
+print 'Iniciando leitura dos dados : ', len(onlyfiles), 'imagens para test'
+
+time.sleep(3)
+
+for f in tqdm(onlyfiles):
+
+    img = cv2.imread(mypath+'train/{}'.format(f))
+    Y.append(get_y(int(f[:-4])))
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    X.append(cv2.resize(gray, (size_img, size_img)))
+
+X = np.array(X)
+Y = np.array(Y)
+
+X = X.reshape(X.shape[0], 1, size_img, size_img).astype('float32')
+X = X/255
+
+x_train = X[:size_train]
+y_train = Y[:size_train]
+x_test = X[size_train:]
+y_test = Y[size_train:]
+
 
 def new_model(input_shape=(128, 128,3),weight_path=None):
         model = Sequential()
@@ -198,84 +265,6 @@ def Predict(x_test):
 
 	return result, matrix
 
-
-
-
-seed = 7
-numpy.random.seed(seed)
-
-
-mypath = './db/'
-nfolds=6
-size_img = 50
-input_shape= (1, size_img, size_img)
-num_classes = 38
-sum_score = 0
-#size_train = 700#
-size_train = 50000
-
-
-x_train = []
-y_train = []
-x_test = []
-y_test = []
-
-#onlyfiles = [f for f in listdir(mypath + '/train_reduced/')]
-onlyfiles = [f for f in listdir(mypath + '/train/')]
-
-X = []
-Y = []
-
-
-#shuffle(onlyfiles)
-out = pd.read_csv(mypath + 'training_solutions_rev1.csv')
-
-def get_y(num):
-    id_v = 0
-    for idx, e in enumerate(out['GalaxyID']):
-        if e == num:
-            id_v = idx
-    y = 0
-    y_id = 0
-    for idx, e in enumerate(out):
-        if idx>0:
-            if y < out[e][id_v]:
-                y = out[e][id_v]
-                y_id = idx
-    a = np.zeros(38)
-    a[y_id] = 1
-    return a
-
-print 'Iniciando leitura dos dados : ', len(onlyfiles), 'imagens para test'
-
-time.sleep(3)
-
-for f in tqdm(onlyfiles):
-
-    img = cv2.imread(mypath+'train/{}'.format(f))
-    Y.append(get_y(int(f[:-4])))
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    X.append(cv2.resize(gray, (size_img, size_img)))
-
-X = np.array(X)
-Y = np.array(Y)
-
-X = X.reshape(X.shape[0], 1, size_img, size_img).astype('float32')
-X = X/255
-
-x_train = X[:size_train]
-y_train = Y[:size_train]
-x_test = X[size_train:]
-y_test = Y[size_train:]
-
-
-print 'Iniciando programa'
-
-
-# execfile('main_model.py')
-# execfile('preparation.py')
-# execfile('train.py')
-# execfile('predict.py')
 
 
 def main():
