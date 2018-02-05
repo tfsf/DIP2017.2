@@ -220,7 +220,7 @@ y_train = []
 x_test = []
 y_test = []
 
-#onlyfiles = [f for f in listdir(mypath + '/train_bkp2/')]
+#onlyfiles = [f for f in listdir(mypath + '/train_reduced/')]
 onlyfiles = [f for f in listdir(mypath + '/train/')]
 
 X = []
