@@ -3,7 +3,6 @@ import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import keras
-#import tensorflow as tf
 import numpy
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -20,10 +19,6 @@ from keras import optimizers
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import fbeta_score
-import matplotlib.pyplot as plt
-from keras.applications.vgg19 import VGG19
-import time
-import pandas as pd
 from sklearn.model_selection import KFold
 import numpy as np
 import cv2
@@ -57,7 +52,6 @@ def new_model(input_shape=(128, 128,3),weight_path=None):
         model.add(Dense(38, activation='sigmoid'))
 	return model
 
-#################################################################
 
 def star_model(input_shape=(128,128,3),weight_path=None):
     model = Sequential()
@@ -132,10 +126,8 @@ def KFold_Train(x_train,y_train,nfolds=6,batch_size=128):
 		X_valid = x_train[test_index]
 		Y_valid = y_train[test_index]
 
-		#X_train = x_test.reshape(X_train.shape[0], 1, 28, 28).astype('float32')
-
-		#X_valid = x_test.reshape(X_valid.shape[0], 1, 28, 28).astype('float32')
-		model = zika_model(input_shape)
+		#model = new_model(input_shape)
+		model = star_model(input_shape)
 		num_fold += 1
 		print('Start KFold number {} from {}'.format(num_fold, nfolds))
 		print('Split train: ', len(X_train), len(Y_train))
@@ -162,55 +154,6 @@ def KFold_Train(x_train,y_train,nfolds=6,batch_size=128):
 		    model.load_weights(kfold_weights_path)
 		p_valid = model.predict(X_valid, batch_size = 32, verbose=2)
 	return history
-
-# def autoencoder(input_shape_autoencoder):
-# 	global x_train
-# 	global x_test
-# 	input_img = Input(shape=(1,size_img, size_img))
-# 	x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
-# 	x = MaxPooling2D((2, 2), padding='same')(x)
-# 	x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-# 	x = MaxPooling2D((2, 2), padding='same')(x)
-# 	x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-# 	encoded = MaxPooling2D((2, 2), padding='same')(x)
-#
-# # at this point the representation is (4, 4, 8) i.e. 128-dimensional
-#
-# 	x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-# 	x = UpSampling2D((2, 2))(x)
-# 	x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
-# 	x = UpSampling2D((2, 2))(x)
-# 	x = Conv2D(16, (3, 3), activation='relu')(x)
-# 	x = UpSampling2D((2, 2))(x)
-# 	decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
-#
-# 	autoencoder = Model(input_img, decoded)
-# 	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
-#
-# 	autoencoder.fit(x_train, x_train,
-#                 epochs=50,
-#                 batch_size=128,
-#                 shuffle=True,
-#                 validation_data=(x_test, x_test))
-# 	decoded_imgs = autoencoder.predict(x_test)
-#
-# 	n = 10
-# 	plt.figure(figsize=(20, 4))
-# 	for i in range(n):
-# 	    # display original
-# 	    ax = plt.subplot(2, n, i)
-# 	    plt.imshow(x_test[i].reshape(size_img, size_img))
-# 	    plt.gray()
-# 	    ax.get_xaxis().set_visible(False)
-# 	    ax.get_yaxis().set_visible(False)
-#
-# 	    # display reconstruction
-# 	    ax = plt.subplot(2, n, i + n)
-# 	    plt.imshow(decoded_imgs[i].reshape(size_img, size_img))
-# 	    plt.gray()
-# 	    ax.get_xaxis().set_visible(False)
-# 	    ax.get_yaxis().set_visible(False)
-# 	plt.show()
 
 def KFold_Predict(x_test,nfolds=6,batch_size=128, result = './star_result_full'):
     model = star_model(input_shape)
@@ -270,10 +213,6 @@ num_classes = 38
 sum_score = 0
 #size_train = 700#
 size_train = 50000
-input_shape_autoencoder = 64
-
-
-
 
 
 x_train = []
@@ -354,8 +293,6 @@ def main():
 	print 'Acc = ', float(a)/y_test.shape[0]
 	for e in range(num_classes):
 		print matrix[e]
-    if(sys.argv[1] == 'autoencoder'):
-	autoencoder(input_shape_autoencoder)
 
 if __name__ == '__main__':
     main()
