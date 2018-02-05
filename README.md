@@ -1,2 +1,2 @@
-#Classificação de Galáxias
+# Classificação de Galáxias
 
